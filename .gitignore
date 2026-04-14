@@ -27,6 +27,7 @@ surefire-reports/
 
 # Allure results
 allure-results/
+.allure/
 
 # Generated files
 dependency-reduced-pom.xml
