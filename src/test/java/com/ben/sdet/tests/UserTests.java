@@ -1,7 +1,7 @@
 package com.ben.sdet.tests;
 
-import com.ben.sdet.model.Result;
 import com.ben.sdet.service.UserService;
+import com.ben.sdet.common.Result;
 import com.ben.sdet.dataproviders.UserDataProvider;
 import com.ben.sdet.dto.user.CreateUserRequest;
 import com.ben.sdet.dto.user.User;

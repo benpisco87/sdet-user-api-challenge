@@ -1,11 +1,11 @@
 package com.ben.sdet.service;
 
 import com.ben.sdet.client.UserApi;
+import com.ben.sdet.common.Result;
 import com.ben.sdet.config.ConfigProvider;
 import com.ben.sdet.config.UserServiceConfig;
 import com.ben.sdet.dto.user.CreateUserRequest;
 import com.ben.sdet.dto.user.User;
-import com.ben.sdet.model.Result;
 import com.ben.sdet.utils.RetryUtil;
 
 public class UserService {

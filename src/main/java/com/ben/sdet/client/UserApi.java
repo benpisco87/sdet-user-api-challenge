@@ -1,10 +1,10 @@
 package com.ben.sdet.client;
 
+import com.ben.sdet.common.Result;
 import com.ben.sdet.config.ServiceConfig;
 import com.ben.sdet.dto.user.CreateUserRequest;
 import com.ben.sdet.dto.user.ErrorResponse;
 import com.ben.sdet.dto.user.User;
-import com.ben.sdet.model.Result;
 
 import okhttp3.MediaType;
 import okhttp3.Request;

@@ -1,4 +1,4 @@
-package com.ben.sdet.model;
+package com.ben.sdet.common;
 
 public class Result<T> {
 

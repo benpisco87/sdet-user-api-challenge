@@ -1,10 +1,12 @@
 package com.ben.sdet.client;
 
+import com.ben.sdet.common.Result;
 import com.ben.sdet.config.ServiceConfig;
-import com.ben.sdet.model.Result;
 import com.ben.sdet.utils.ObjectMapperProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ben.sdet.factory.HttpClientFactory;
+import com.ben.sdet.logging.LoggerUtils;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -33,27 +35,42 @@ public abstract class BaseClient {
         return baseRequest(path).addHeader("Content-Type", "application/json");
     }
 
-    protected <T, E> Result<T> execute(Request request, Class<T> successClass, Class<E> errorClass) {
-        try (Response response = client.newCall(request).execute()) {
-            String body = response.body() != null ? response.body().string() : "";
-            T data = null;
-            E error = null;
+    protected <T, E> Result<T> execute(Request request,
+                                   Class<T> successClass,
+                                   Class<E> errorClass) {
+    try (Response response = client.newCall(request).execute()) {
 
-            if (!body.isEmpty()) {
-                try {
-                    if (response.isSuccessful()) {
-                        data = MAPPER.readValue(body, successClass);
-                    } else {
-                        error = MAPPER.readValue(body, errorClass);
-                    }
-                } catch (Exception ignored) {
-                    // keep rawBody for debugging
+        String body = response.body() != null ? response.body().string() : "";
+
+        T data = null;
+        E error = null;
+
+        if (response.isSuccessful()) {
+            try {
+                if (successClass != Void.class && !body.isEmpty()) {
+                    data = MAPPER.readValue(body, successClass);
                 }
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Failed to parse SUCCESS response. Status: "
+                                + response.code() + ", Body: " + body,
+                        e
+                );
             }
-
-            return new Result<>(response.code(), data, error, body);
-        } catch (Exception e) {
-            throw new RuntimeException("API call failed", e);
+        } else {
+            try {
+                if (!body.isEmpty() && errorClass != null) {
+                    error = MAPPER.readValue(body, errorClass);
+                }
+            } catch (Exception e) {
+                LoggerUtils.debug(String.format("Failed to parse error response: %s Exception: %s", body, e.getMessage()));
+            }
         }
+
+        return new Result<>(response.code(), data, error, body);
+
+    } catch (Exception e) {
+        throw new RuntimeException("API call failed", e);
+    }
     }
 }
