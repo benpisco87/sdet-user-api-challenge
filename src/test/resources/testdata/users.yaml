@@ -1,0 +1,13 @@
+validUsers:
+  - label: "Valid User 1"
+    user:
+      email: "test1@mail.com"
+      name: "Test User 1"
+      age: 30
+
+invalidUsers:
+  - label: "Missing Email"
+    user:
+      email: ""
+      name: "No Email"
+      age: 20

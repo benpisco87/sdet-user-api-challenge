@@ -2,6 +2,7 @@ package com.ben.sdet.client;
 
 import com.ben.sdet.config.ServiceConfig;
 import com.ben.sdet.model.Result;
+import com.ben.sdet.utils.ObjectMapperProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ben.sdet.factory.HttpClientFactory;
 import okhttp3.OkHttpClient;
@@ -10,7 +11,7 @@ import okhttp3.Response;
 
 public abstract class BaseClient {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = ObjectMapperProvider.get();
 
     protected final ServiceConfig config;
     protected final OkHttpClient client;
@@ -26,6 +27,10 @@ public abstract class BaseClient {
 
     protected Request.Builder baseRequest(String path) {
         return new Request.Builder().url(url(path));
+    }
+
+    protected Request.Builder baseJsonRequest(String path) {    
+        return baseRequest(path).addHeader("Content-Type", "application/json");
     }
 
     protected <T, E> Result<T> execute(Request request, Class<T> successClass, Class<E> errorClass) {

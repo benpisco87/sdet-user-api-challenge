@@ -1,40 +1,47 @@
 package com.ben.sdet.client;
 
 import com.ben.sdet.config.ServiceConfig;
-import com.ben.sdet.model.ErrorResponse;
+import com.ben.sdet.dto.user.CreateUserRequest;
+import com.ben.sdet.dto.user.ErrorResponse;
+import com.ben.sdet.dto.user.User;
 import com.ben.sdet.model.Result;
-import com.ben.sdet.model.User;
+
+import okhttp3.MediaType;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 
 public class UserApi extends BaseClient {
+
+    private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     public UserApi(ServiceConfig config) {
         super(config);
     }
 
-    public Result<User[]> getUsers() {
-        Request request = baseRequest("/users")
-                .get()
-                .build();
+    // --- POST /users ---
+    public Result<User> createUser(CreateUserRequest requestDto) {
 
-        return execute(request, User[].class, ErrorResponse.class);
+        try {
+            String body = MAPPER.writeValueAsString(requestDto);
+
+            Request request = baseJsonRequest("/users")
+                    .post(RequestBody.create(body, JSON))
+                    .build();
+
+            return execute(request, User.class, ErrorResponse.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize CreateUserRequest", e);
+        }
     }
 
-    public Result<User> getUser(String email, String token) {
+    // --- GET /users/{email} ---
+    public Result<User> getUser(String email) {
+
         Request request = baseRequest("/users/" + email)
-                .addHeader("Authorization", token)
                 .get()
                 .build();
 
         return execute(request, User.class, ErrorResponse.class);
-    }
-
-    public Result<Object> deleteUser(String email, String token) {
-        Request request = baseRequest("/users/" + email)
-                .addHeader("Authorization", token)
-                .delete()
-                .build();
-
-        return execute(request, Object.class, ErrorResponse.class);
     }
 }

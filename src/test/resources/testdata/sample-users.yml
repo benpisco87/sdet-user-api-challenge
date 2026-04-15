@@ -1,5 +1,0 @@
-# Sample YAML placeholder for data-driven tests
-users:
-  - name: Jane Doe
-    email: jane.doe@example.com
-    age: 28

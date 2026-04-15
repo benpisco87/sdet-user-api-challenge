@@ -3,8 +3,9 @@ package com.ben.sdet.service;
 import com.ben.sdet.client.UserApi;
 import com.ben.sdet.config.ConfigProvider;
 import com.ben.sdet.config.UserServiceConfig;
+import com.ben.sdet.dto.user.CreateUserRequest;
+import com.ben.sdet.dto.user.User;
 import com.ben.sdet.model.Result;
-import com.ben.sdet.model.User;
 import com.ben.sdet.utils.RetryUtil;
 
 public class UserService {
@@ -28,8 +29,8 @@ public class UserService {
         return new UserService(mockApi);
     }
 
-    public User getUserOrThrow(String email, String token) {
-        Result<User> result = RetryUtil.execute(() -> userApi.getUser(email, token), 2);
+    public User getUserOrThrow(String email) {
+        Result<User> result = RetryUtil.execute(() -> userApi.getUser(email), 2);
 
         if (!result.isSuccess()) {
             throw new RuntimeException("Failed to get user: " + result.getRawBody());
@@ -38,8 +39,10 @@ public class UserService {
         return result.getData();
     }
 
-    public Result<User> getUser(String email, String token) {
-        return userApi.getUser(email, token);
+    public Result<User> getUser(String email) {
+        return userApi.getUser(email);
     }
-
+    public Result<User> createUser(CreateUserRequest user) {
+        return userApi.createUser(user);
+    }
 }
