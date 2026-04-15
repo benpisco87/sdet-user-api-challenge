@@ -18,10 +18,9 @@ public class UserService {
     }
 
     public static UserService get() {
-        if (instance == null) {
-            UserServiceConfig config = ConfigProvider.get(UserServiceConfig.class);
-            instance = new UserService(new UserApi(config));
-        }
+    if (instance == null) {
+        instance = new UserService(new UserApi(new UserServiceConfig()));
+    }
         return instance;
     }
 

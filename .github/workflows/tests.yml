@@ -1,0 +1,20 @@
+name: User API Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+
+  test-dev:
+    uses: ./.github/workflows/reusable-test.yml
+    with:
+      env_name: dev
+      suite_file: src/test/resources/testng.xml
+
+  test-prod:
+    uses: ./.github/workflows/reusable-test.yml
+    with:
+      env_name: prod
+      suite_file: src/test/resources/testng.xml

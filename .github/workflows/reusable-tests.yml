@@ -1,0 +1,63 @@
+name: Reusable API Test
+
+on:
+  workflow_call:
+    inputs:
+      env_name:
+        required: true
+        type: string
+      suite_file:
+        required: true
+        type: string
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+
+      - name: Start API container
+        run: |
+          docker run -d -p 3000:3000 ghcr.io/danielsilva-loanpro/sdet-interview-challenge:latest
+
+      - name: Wait for API
+        run: |
+          echo "Waiting for API..."
+          for i in {1..10}; do
+            if curl -s http://localhost:3000/${{ inputs.env_name }}/users; then
+              echo "API is up!"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "API did not start"
+          exit 1
+
+      - name: Run tests
+        run: |
+          mvn clean test \
+            -Denv=${{ inputs.env_name }} \
+            -DsuiteXmlFile=${{ inputs.suite_file }}
+
+      - name: Generate Allure Report
+        run: mvn allure:report
+
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-${{ inputs.env_name }}
+          path: target/site/allure-maven-plugin

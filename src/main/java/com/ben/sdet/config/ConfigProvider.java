@@ -1,22 +1,35 @@
 package com.ben.sdet.config;
 
+import java.io.InputStream;
+import java.util.Properties;
+
 public final class ConfigProvider {
 
-    private ConfigProvider() {
-        // Utility class
-    }
+    private static final Properties PROPS = new Properties();
 
-    private static Environment getEnvironment() {
-        return Environment.from(System.getProperty("env", "dev"));
-    }
-
-    public static <T extends ServiceConfig> T get(Class<T> clazz) {
+    static {
         try {
-            return clazz
-                    .getDeclaredConstructor(Environment.class)
-                    .newInstance(getEnvironment());
+            String env = System.getProperty("env", "dev");
+            String fileName = "config/" + env + ".properties";
+
+            InputStream is = ConfigProvider.class
+                    .getClassLoader()
+                    .getResourceAsStream(fileName);
+
+            if (is == null) {
+                throw new RuntimeException("Config file not found: " + fileName);
+            }
+
+            PROPS.load(is);
+
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create config for " + clazz.getSimpleName(), e);
+            throw new RuntimeException("Failed to load config", e);
         }
+    }
+
+    private ConfigProvider() {}
+
+    public static String get(String key) {
+        return PROPS.getProperty(key);
     }
 }
