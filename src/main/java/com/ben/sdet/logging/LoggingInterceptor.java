@@ -16,35 +16,62 @@ public class LoggingInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        String requestBody = "";
 
+        // --- Read request body ---
+        String requestBody = "";
         if (request.body() != null) {
             Buffer buffer = new Buffer();
             request.body().writeTo(buffer);
             requestBody = buffer.readUtf8();
         }
 
-        LoggerUtils.info("➡️ " + request.method() + " " + request.url());
-
-        if (!requestBody.isBlank()) {
-            String prettyRequest = JsonUtil.pretty(requestBody);
-            LoggerUtils.attach("Request Body", prettyRequest);
-        }
-
+        // --- Execute request ---
         Response response = chain.proceed(request);
 
+        // --- Read response body ---
         ResponseBody responseBody = response.body();
-        String bodyString = responseBody != null ? responseBody.string() : "";
+        String responseBodyString = responseBody != null ? responseBody.string() : "";
 
-        LoggerUtils.info("⬅️ " + response.code() + " " + request.url());
+        // --- Pretty print ---
+        String prettyRequest = JsonUtil.pretty(requestBody);
+        String prettyResponse = JsonUtil.pretty(responseBodyString);
 
-        if (!bodyString.isBlank()) {
-            String prettyResponse = JsonUtil.pretty(bodyString);
-            LoggerUtils.attach("Response Body", prettyResponse);
+        // --- Build single log ---
+        StringBuilder logBuilder = new StringBuilder();
+
+        logBuilder.append("REQUEST:\n")
+                .append(request.method()).append(" ").append(request.url()).append("\n\n");
+
+        if (!requestBody.isBlank()) {
+            logBuilder.append("Request Body:\n")
+                    .append(prettyRequest).append("\n\n");
         }
 
+        logBuilder.append("--------------------------------------------------\n");
+
+        logBuilder.append("RESPONSE:\n")
+                .append("Status: ").append(response.code()).append("\n\n");
+
+        if (!responseBodyString.isBlank()) {
+            logBuilder.append("Response Body:\n")
+                    .append(prettyResponse).append("\n");
+        }
+
+        String finalLog = logBuilder.toString();
+
+        // --- Console log ---
+        log.info("\n{}", finalLog);
+
+        // --- Allure attachment (SINGLE) ---
+        String title = request.method() + " " + request.url() + " -> " + response.code();
+        LoggerUtils.attach(title, finalLog);
+
+        // --- Rebuild response body ---
         return response.newBuilder()
-                .body(ResponseBody.create(bodyString, responseBody != null ? responseBody.contentType() : null))
+                .body(ResponseBody.create(
+                        responseBodyString,
+                        responseBody != null ? responseBody.contentType() : null
+                ))
                 .build();
     }
 }

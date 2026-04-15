@@ -12,20 +12,20 @@ public final class LoggerUtils {
 
     public static void info(String message) {
         log.info(message);
-        Allure.step(message);
+        attach(message, message);
     }
 
     public static void debug(String message) {
         log.debug(message);
-        Allure.step(message);
+        attach(message, message);
     }
 
     public static void error(String message, Throwable throwable) {
         log.error(message, throwable);
-        Allure.step("Error occurred: " + message);
+        attach("Error occurred: " + message, message + "\n" + throwable.getMessage());
     }
 
     public static void attach(String name, String content) {
-        Allure.addAttachment(name, content);
+        Allure.addAttachment(name, "text/plain", content);
     }
 }

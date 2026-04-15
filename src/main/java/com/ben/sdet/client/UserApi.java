@@ -21,18 +21,20 @@ public class UserApi extends BaseClient {
     // --- POST /users ---
     public Result<User> createUser(CreateUserRequest requestDto) {
 
+        String body;
         try {
-            String body = MAPPER.writeValueAsString(requestDto);
-
-            Request request = baseJsonRequest("/users")
-                    .post(RequestBody.create(body, JSON))
-                    .build();
-
-            return execute(request, User.class, ErrorResponse.class);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize CreateUserRequest", e);
+            body = MAPPER.writeValueAsString(requestDto);
         }
+        catch (Exception e) {
+            throw new RuntimeException("Failed to serialize CreateUserRequest: " + requestDto, e);
+        }   
+
+        Request request = baseJsonRequest("/users")
+                .post(RequestBody.create(body, JSON))
+                .build();
+
+        return execute(request, User.class, ErrorResponse.class);
+      
     }
 
     // --- GET /users/{email} ---
