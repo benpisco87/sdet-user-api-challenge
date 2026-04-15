@@ -29,6 +29,9 @@ surefire-reports/
 allure-results/
 .allure/
 
+# TestNG reports
+test-output/
+
 # Generated files
 dependency-reduced-pom.xml
 release.properties
@@ -36,3 +39,4 @@ buildNumber.properties
 
 # Generated source files
 generated-sources/
+
