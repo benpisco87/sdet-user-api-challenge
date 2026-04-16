@@ -1,13 +1,67 @@
 validUsers:
-  - label: "Valid User 1"
-    user:
-      email: "test1@mail.com"
-      name: "Test User 1"
+  - label: Valid User 1
+    request:
+      name: Test User 1
+      email: test1@mail.com
       age: 30
 
+  - label: Age boundary min
+    request:
+      name: Min Age
+      email: min@mail.com
+      age: 1
+
+  - label: Age boundary max
+    request:
+      name: Max Age
+      email: max@mail.com
+      age: 150
+
 invalidUsers:
-  - label: "Missing Email"
-    user:
+  - label: Missing email
+    request:
+      name: Test
+      email: null
+      age: 25
+    expectedStatus: 400
+    expectedError: email is required
+
+  - label: Invalid email format
+    request:
+      name: Test
+      email: invalid-email
+      age: 25
+    expectedStatus: 400
+    expectedError: Validation error
+
+  - label: Age too low
+    request:
+      name: Test
+      email: low@mail.com
+      age: 0
+    expectedStatus: 400
+    expectedError: Age must be between 1 and 150
+
+  - label: Age too high
+    request:
+      name: Test
+      email: high@mail.com
+      age: 151
+    expectedStatus: 400
+    expectedError: Age must be between 1 and 150
+
+  - label: Empty name
+    request:
+      name: ""
+      email: emptyname@mail.com
+      age: 25
+    expectedStatus: 400
+    expectedError: name is required
+
+  - label: Empty email
+    request:
+      name: Test
       email: ""
-      name: "No Email"
-      age: 20
+      age: 25
+    expectedStatus: 400
+    expectedError: email is required

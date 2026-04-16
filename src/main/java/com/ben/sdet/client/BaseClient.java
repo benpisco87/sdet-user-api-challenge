@@ -1,6 +1,7 @@
 package com.ben.sdet.client;
 
 import java.net.ConnectException;
+import java.util.List;
 
 import org.testng.SkipException;
 
@@ -39,6 +40,9 @@ public abstract class BaseClient {
         return baseRequest(path).addHeader("Content-Type", "application/json");
     }
 
+    // =========================
+    // SINGLE OBJECT
+    // =========================
     protected <T, E> Result<T> execute(Request request,
                                    Class<T> successClass,
                                    Class<E> errorClass) {
@@ -89,6 +93,53 @@ public abstract class BaseClient {
                 throw new SkipException(message);
             }
 
+            throw new RuntimeException("API call failed", e);
+        }
+    }
+
+    // =========================
+    // LIST SUPPORT
+    // =========================
+    protected <T, E> Result<List<T>> executeList(Request request,
+                                                Class<T> successClass,
+                                                Class<E> errorClass) {
+
+        try (Response response = client.newCall(request).execute()) {
+
+            String body = response.body() != null ? response.body().string() : "";
+
+            List<T> data = null;
+            E error = null;
+
+            if (response.isSuccessful()) {
+                try {
+                    if (!body.isEmpty()) {
+                        data = MAPPER.readValue(
+                                body,
+                                MAPPER.getTypeFactory()
+                                        .constructCollectionType(List.class, successClass)
+                        );
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(
+                            "Failed to parse LIST response. Status: "
+                                    + response.code() + ", Body: " + body,
+                            e
+                    );
+                }
+            } else {
+                try {
+                    if (!body.isEmpty() && errorClass != null) {
+                        error = MAPPER.readValue(body, errorClass);
+                    }
+                } catch (Exception e) {
+                    // ignore, rawBody is enough
+                }
+            }
+
+            return new Result<>(response.code(), data, error, body);
+
+        } catch (Exception e) {
             throw new RuntimeException("API call failed", e);
         }
     }

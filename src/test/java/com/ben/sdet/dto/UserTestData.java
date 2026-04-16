@@ -12,7 +12,10 @@ import lombok.NoArgsConstructor;
 public class UserTestData {
 
     private String label;
-    private CreateUserRequest user;
+    private CreateUserRequest request;
+    // Optional values for negative test cases
+    private Integer expectedStatus;
+    private String expectedError;
 
 
 }
