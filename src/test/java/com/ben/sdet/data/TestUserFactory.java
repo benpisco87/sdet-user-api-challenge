@@ -1,8 +1,7 @@
 package com.ben.sdet.data;
 
 import com.ben.sdet.dto.user.CreateUserRequest;
-
-import utils.data.TestDataUtils;
+import com.ben.sdet.utils.data.TestDataUtils;
 
 public class TestUserFactory {
     

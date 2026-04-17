@@ -4,9 +4,8 @@ import org.testng.annotations.DataProvider;
 
 import com.ben.sdet.dto.UserTestData;
 import com.ben.sdet.dto.user.CreateUserRequest;
-
-import utils.YamlLoader;
-import utils.data.TestDataUtils;
+import com.ben.sdet.utils.YamlLoader;
+import com.ben.sdet.utils.data.TestDataUtils;
 
 import java.util.List;
 

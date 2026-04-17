@@ -1,4 +1,4 @@
-package utils.data;
+package com.ben.sdet.utils.data;
 
 public class TestDataUtils {
 
