@@ -48,18 +48,18 @@ jobs:
           exit 1
 
       - name: Run tests
-        continue-on-error: true
         run: |
           mvn clean test \
             -Denv=${{ inputs.env_name }} \
             -DsuiteXmlFile=${{ inputs.suite_file }}
 
       - name: Generate Allure Report
+        id: allure-report
         if: always()
         run: mvn allure:report
 
       - name: Upload Allure Report
-        if: always()
+        if: always() && steps.allure-report.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: allure-report-${{ inputs.env_name }}

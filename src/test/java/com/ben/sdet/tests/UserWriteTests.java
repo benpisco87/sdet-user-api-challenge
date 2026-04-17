@@ -5,6 +5,7 @@ import org.testng.asserts.SoftAssert;
 
 import com.ben.sdet.common.Result;
 import com.ben.sdet.data.TestUserFactory;
+import com.ben.sdet.data.UserDataProvider;
 import com.ben.sdet.dto.user.CreateUserRequest;
 import com.ben.sdet.dto.user.UpdateUserRequest;
 import com.ben.sdet.dto.user.User;
@@ -20,7 +21,7 @@ public class UserWriteTests {
         LoggerUtils.info("### Step 1 - Creating user for update test");
         SoftAssert softly = new SoftAssert();
 
-        CreateUserRequest user = TestUserFactory.defaultUser("update", 30);
+        CreateUserRequest user = TestUserFactory.defaultUser("update@domain.com", 30);
         UserService.get().createUser(user);
 
         LoggerUtils.info("### Step 2 - Sending update request");
@@ -66,7 +67,7 @@ public class UserWriteTests {
         LoggerUtils.info("### Step 1 - Creating user to delete with auth");
         SoftAssert softly = new SoftAssert();
 
-        CreateUserRequest user = TestUserFactory.defaultUser("user", 30);
+        CreateUserRequest user = TestUserFactory.defaultUser("user@domain.com", 30);
         UserService.get().createUser(user);
 
         LoggerUtils.info("### Step 2 - Deleting user with auth token");
@@ -80,17 +81,17 @@ public class UserWriteTests {
         softly.assertAll();
     }
 
-    @Test
-    public void shouldFailDeleteWithoutAuth() {
+    @Test(dataProvider = "invalidTokens", dataProviderClass = UserDataProvider.class)
+    public void shouldFailDeleteWithoutAuth(String token, String label) {
 
-        LoggerUtils.info("### Step 1 - Creating user for unauthenticated delete test");
+        LoggerUtils.info("### Step 1 - Creating user for unauthenticated delete test: " + label);
         SoftAssert softly = new SoftAssert();
 
-        CreateUserRequest user = TestUserFactory.defaultUser("user", 30);
+        CreateUserRequest user = TestUserFactory.defaultUser("user@domain.com", 30);
         UserService.get().createUser(user);
 
         LoggerUtils.info("### Step 2 - Sending delete request without auth header");
-        Result<Void> result = UserService.get().deleteUser(user.getEmail(), null);
+        Result<Void> result = UserService.get().deleteUser(user.getEmail(), token);
 
         LoggerUtils.info("### Step 3 - Validating authentication failure and original user remains");
         UserValidator.validateError(result, 401, "Authentication required", softly);
@@ -105,7 +106,7 @@ public class UserWriteTests {
         LoggerUtils.info("### Step 1 - Creating initial user for duplicate create test");
         SoftAssert softly = new SoftAssert();
 
-        CreateUserRequest user = TestUserFactory.defaultUser("dup", 30);
+        CreateUserRequest user = TestUserFactory.defaultUser("dup@domain.com", 30);
 
         // First creation → OK
         UserService.get().createUser(user);
@@ -126,8 +127,8 @@ public class UserWriteTests {
         SoftAssert softly = new SoftAssert();
 
         // Create two users
-        CreateUserRequest user1 = TestUserFactory.defaultUser("user1", 25);
-        CreateUserRequest user2 = TestUserFactory.defaultUser("user2", 30);
+        CreateUserRequest user1 = TestUserFactory.defaultUser("user1@domain.com", 25);
+        CreateUserRequest user2 = TestUserFactory.defaultUser("user2@domain.com", 30);
 
         UserService.get().createUser(user1);
         UserService.get().createUser(user2);

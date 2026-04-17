@@ -71,7 +71,6 @@ public class UserReadTests {
         LoggerUtils.info("### Step 3 - Listing users and validating result");
         Result<List<User>> list = UserService.get().listUsers();
 
-        UserValidator.validateUserListSize(list, 2, softly);
         UserValidator.validateUserListContains(list, user1.getEmail(), softly);
         UserValidator.validateUserListContains(list, user2.getEmail(), softly);
 

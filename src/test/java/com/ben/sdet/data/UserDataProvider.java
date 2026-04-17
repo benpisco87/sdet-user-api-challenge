@@ -66,4 +66,14 @@ public final class UserDataProvider {
                 })
                 .toArray(Object[][]::new);
     }
+
+    @DataProvider(name = "invalidTokens", parallel = true)
+    public static Object[][] invalidTokens() {
+        return new Object[][] {
+                {"", "Empty token"},
+                {"invalid-token-123", "Random invalid token"},
+                {"1234567890abc", "Token with correct format but invalid value"},
+                {"MYSECRETTOKEN", "Valid token but wrong case"},
+        };
+    }
 }

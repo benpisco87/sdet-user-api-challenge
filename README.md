@@ -168,3 +168,4 @@ This repository includes an in-progress test plan and bug report in `TEST_PLAN_A
 - Formatter and cleanup tasks are still required to improve code quality.
 - Additional test coverage is needed to better validate edge cases and error handling.
 - Java documentation is currently missing and should be added.
+- The token used for verifying PUT /users/{email} endpoints should be store in a secure place.
