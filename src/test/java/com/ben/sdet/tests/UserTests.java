@@ -114,4 +114,31 @@ public class UserTests {
 
         UserValidator.validateError(result, 400, "Invalid JSON body");
     }
+
+    @Test
+    public void shouldNotLeakUsersAcrossEnvironments() {
+
+        SoftAssert softly = new SoftAssert();
+
+        // current env (comes from -Denv)
+        String currentEnvStr = System.getProperty("env", "dev");
+
+        // opposite env
+        String otherEnv = currentEnvStr.equals("dev") ? "prod" : "dev";
+
+        UserService currentService = UserService.get(currentEnvStr);
+        UserService otherService = UserService.get(otherEnv);
+
+        CreateUserRequest user = TestUserFactory.defaultUser("env@mail.com", 30);
+
+        // Create in current env
+        currentService.createUser(user);
+
+        // Verify NOT visible in other env
+        Result<User> result = otherService.getUser(user.getEmail());
+
+        UserValidator.validateError(result, 404, "User not found", softly);
+
+        softly.assertAll();
+    }
 }

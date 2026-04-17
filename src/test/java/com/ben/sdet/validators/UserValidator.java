@@ -7,6 +7,7 @@ import org.testng.asserts.SoftAssert;
 import com.ben.sdet.common.Result;
 import com.ben.sdet.dto.user.CreateUserRequest;
 import com.ben.sdet.dto.user.ErrorResponse;
+import com.ben.sdet.dto.user.UpdateUserRequest;
 import com.ben.sdet.dto.user.User;
 import com.ben.sdet.service.UserService;
 
@@ -129,6 +130,88 @@ public class UserValidator {
                 get.getStatusCode() == 404 || get.getData() == null,
                 "User should NOT exist but was found: " + email
         );
+    }
+
+    // ---------- GET SINGLE USER ----------
+    public static void validateUser(Result<User> result,
+                                    String expectedEmail,
+                                    String expectedName,
+                                    Integer expectedAge,
+                                    SoftAssert softly) {
+
+        softly.assertEquals(result.getStatusCode(), 200, "Status code mismatch");
+        softly.assertNotNull(result.getData(), "User should not be null");
+
+        if (result.getData() != null) {
+            User u = result.getData();
+
+            softly.assertEquals(u.getEmail(), expectedEmail, "Email mismatch");
+            softly.assertEquals(u.getName(), expectedName, "Name mismatch");
+            softly.assertEquals(u.getAge(), expectedAge.intValue(), "Age mismatch");
+        }
+    }
+
+    // ---------- LIST USERS ----------
+
+    public static void validateUserListContains(Result<List<User>> result,
+                                                String email,
+                                                SoftAssert softly) {
+
+        softly.assertEquals(result.getStatusCode(), 200, "Status code mismatch");
+
+        boolean found = result.getData().stream()
+                .anyMatch(u -> u.getEmail().equals(email));
+
+        softly.assertTrue(found, "User not found in list: " + email);
+    }
+
+    public static void validateUserListSize(Result<List<User>> result,
+                                            int expectedSize,
+                                            SoftAssert softly) {
+
+        softly.assertEquals(result.getStatusCode(), 200, "Status code mismatch");
+        softly.assertNotNull(result.getData(), "User list should not be null");
+
+        if (result.getData() != null) {
+            softly.assertEquals(result.getData().size(), expectedSize, "List size mismatch");
+        }
+    }
+
+    // ---------- STATE VALIDATION ----------
+
+    public static void validateUserExists(String email, SoftAssert softly) {
+        Result<User> result = UserService.get().getUser(email);
+
+        softly.assertEquals(result.getStatusCode(), 200, "Expected user to exist");
+        softly.assertNotNull(result.getData(), "User should exist but is null");
+    }
+
+    public static void validateUserNotExists(String email, SoftAssert softly) {
+        Result<User> result = UserService.get().getUser(email);
+
+        softly.assertEquals(result.getStatusCode(), 404, "Expected user to NOT exist");
+    }
+
+    // ---------- UPDATE ----------
+
+    public static void validateUpdateSuccess(Result<User> result,
+                                            UpdateUserRequest request,
+                                            SoftAssert softly) {
+
+        softly.assertEquals(result.getStatusCode(), 200, "Status code mismatch");
+        softly.assertNotNull(result.getData(), "Updated user should not be null");
+
+        if (result.getData() != null) {
+            softly.assertEquals(result.getData().getName(), request.getName(), "Name mismatch");
+            softly.assertEquals(result.getData().getAge(), request.getAge(), "Age mismatch");
+            softly.assertEquals(result.getData().getEmail(), request.getEmail(), "Email mismatch");
+        }
+    }
+
+    // ---------- DELETE ----------
+
+    public static void validateDeleteSuccess(String email, SoftAssert softly) {
+        validateUserNotExists(email, softly);
     }
 
 }

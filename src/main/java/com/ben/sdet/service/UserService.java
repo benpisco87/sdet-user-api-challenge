@@ -5,6 +5,7 @@ import java.util.List;
 import com.ben.sdet.client.UserApi;
 import com.ben.sdet.common.Result;
 import com.ben.sdet.config.ConfigProvider;
+import com.ben.sdet.config.ServiceConfig;
 import com.ben.sdet.config.UserServiceConfig;
 import com.ben.sdet.dto.user.CreateUserRequest;
 import com.ben.sdet.dto.user.UpdateUserRequest;
@@ -26,6 +27,20 @@ public class UserService {
     }
         return instance;
     }
+
+    // For special testing with different environments (e.g., dev vs prod)
+    public static UserService get(String env) {
+        return new UserService(new UserApi(new ServiceConfig() {
+            @Override
+            public String getBaseUrl() {
+                // Swaps 'dev' to 'prod' or 'prod' to 'dev' in one line
+                String newUrl = ConfigProvider.get("user.baseUrl")
+                .replace("dev", env)
+                .replace("prod", env);
+                return newUrl;
+            }
+        }));
+    }   
 
     public static UserService getMocked(UserApi mockApi) {
         return new UserService(mockApi);
