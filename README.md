@@ -159,7 +159,7 @@ To run the same flow locally, use the same Maven command with the matching envir
 mvn clean test -Denv=dev -DsuiteXmlFile=src/test/resources/testng.xml
 ```
 
-## Disclaimer
+## Project Status & Known Gaps
 
 This repository includes an in-progress test plan and bug report in `TEST_PLAN_AND_BUG_REPORT.md`.
 
